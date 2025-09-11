@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "X98C+ayp2SGme1FSL+SyNgOp9ddDRxinsrmQE2zAHCo=",
+  "Source": "myblog",
+  "BasePath": "_content/myblog",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
