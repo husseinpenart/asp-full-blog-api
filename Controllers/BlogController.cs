@@ -45,6 +45,7 @@ namespace myblog.Controllers
         // create post 
 
         [HttpPost]
+        [Consumes("application/json")]
         public async Task<IActionResult> Create([FromBody] blogCrudDto dto)
         {
             if (!ModelState.IsValid)

@@ -1,12 +1,20 @@
 {
   "Version": 1,
-  "Hash": "X98C+ayp2SGme1FSL+SyNgOp9ddDRxinsrmQE2zAHCo=",
+  "Hash": "F7JqWFOca0xuAfpMcSooXcQmJUeO5JjvYnInIRlk6Ng=",
   "Source": "myblog",
   "BasePath": "_content/myblog",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "myblog/wwwroot",
+      "Source": "myblog",
+      "ContentRoot": "/home/hussein/myblog/wwwroot/",
+      "BasePath": "_content/myblog",
+      "Pattern": "**"
+    }
+  ],
   "Assets": [],
   "Endpoints": []
 }

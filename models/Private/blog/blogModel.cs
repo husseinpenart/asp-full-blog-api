@@ -10,6 +10,8 @@ namespace myblog.models.Private.blog
         [Required(ErrorMessage = "title required")]
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
+        [Required(ErrorMessage = "Cover is Required")]
+        public string ImagePath { get; set; }
         [Required(ErrorMessage = "Description Requiered")]
         public string Description { get; set; }
         [Required(ErrorMessage = "Category Required")]

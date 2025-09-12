@@ -9,6 +9,8 @@ namespace myblog.models.DtoModels
         [Required(ErrorMessage = "title required")]
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
+        [Required(ErrorMessage = "Cover is Required")]
+        public string cover { get; set; }
         [Required(ErrorMessage = "Description Requiered")]
         public string Description { get; set; }
         [Required(ErrorMessage = "Category Required")]
@@ -22,6 +24,7 @@ namespace myblog.models.DtoModels
         public Guid Id { get; set; }
 
         public string title { get; set; }
+        public string ImagePath { get; set; }
         public string Description { get; set; }
         public string category { get; set; }
         public string writer { get; set; }

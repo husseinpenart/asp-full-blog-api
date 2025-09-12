@@ -55,6 +55,25 @@ namespace myblog.services.blogs
         //create blog
         public async Task<(bool Success, string Message, blogResponseDto Data)> CreateAsync(blogCrudDto dto)
         {
+            string relativePath = null;
+
+            if (!string.IsNullOrEmpty(dto.cover))
+            {
+                var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "blog");
+                if (!Directory.Exists(uploadDir))
+                    Directory.CreateDirectory(uploadDir);
+
+                var fileName = $"{Guid.NewGuid()}.jpg"; // or detect extension
+                var filePath = Path.Combine(uploadDir, fileName);
+
+                // Decode Base64 string
+                var imageBytes = Convert.FromBase64String(dto.cover);
+
+                await File.WriteAllBytesAsync(filePath, imageBytes);
+
+                relativePath = Path.Combine("uploads", "blog", fileName);
+            }
+
             var blog = new blogModel
             {
                 Id = Guid.NewGuid(),
@@ -62,20 +81,22 @@ namespace myblog.services.blogs
                 Description = dto.Description,
                 writer = dto.writer,
                 category = dto.category,
+                ImagePath = relativePath,
 
             };
             await _blogRepository.AddAsync(blog);
             var response = new blogResponseDto
             {
-                
+
                 Id = blog.Id,
                 title = blog.title,
                 writer = blog.writer,
                 Description = blog.Description,
                 createdAt = blog.createdAt,
                 category = blog.category,
+                ImagePath = blog.ImagePath,
             };
-            return (true, $"blog with title of {blog.title} successfully ",response);
+            return (true, $"blog with title of {blog.title} successfully ", response);
         }
 
         //update blog
