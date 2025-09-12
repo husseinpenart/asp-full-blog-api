@@ -19,19 +19,47 @@ namespace myblog.services.blogs
             _blogRepository = blogRepository;
         }
         // get all blogs
-        public async Task<(bool Success, string Message, List<blogResponseDto> Data)> GetAllAsync()
+        public async Task<(bool Success, string Message, PaginatedResponseDto<blogResponseDto> Data)> GetAllAsync(int pageNumber, int pageSize)
         {
-            var blog = await _blogRepository.GetAllAsync();
-            var response = blog.Select(p => new blogResponseDto
+            try
             {
-                Id = p.Id,
-                title = p.title,
-                writer = p.writer,
-                Description = p.Description,
-                category = p.category,
-                createdAt = p.createdAt
-            }).ToList();
-            return (true, "list of blogs", response);
+                // Validate pagination parameters
+                if (pageNumber < 1) pageNumber = 1;
+                if (pageSize < 1) pageSize = 10;
+                if (pageSize > 100) pageSize = 100; // Optional: Limit max page size
+
+                // Get paginated blogs and total count from repository
+                var (blogs, totalItems) = await _blogRepository.GetAllAsync(pageNumber, pageSize);
+
+                // Map to DTO
+                var paginatedBlogs = blogs.Select(p => new blogResponseDto
+                {
+                    Id = p.Id,
+                    title = p.title,
+                    ImagePath = p.ImagePath, 
+                    Description = p.Description,
+                    category = p.category,
+                    writer = p.writer,
+                    createdAt = p.createdAt
+                }).ToList();
+
+                // Create paginated response
+                var response = new PaginatedResponseDto<blogResponseDto>
+                {
+                    Data = paginatedBlogs,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalItems = totalItems,
+                    TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+                };
+
+                return (true, "Paginated list of blogs", response);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and ensure a return value
+                return (false, $"Error retrieving blogs: {ex.Message}", null);
+            }
         }
         // get by id 
         public async Task<(bool Success, string Message, blogResponseDto Data)> GetByIdAsync(Guid id)

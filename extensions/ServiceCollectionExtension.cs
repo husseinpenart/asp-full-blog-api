@@ -10,7 +10,7 @@ namespace myblog.extensions
     {
         public static IServiceCollection AddBlogServices(this IServiceCollection services)
         {
-            services.AddScoped<IblogRepository, blogRepository>();
+            services.AddScoped<IblogRepository, BlogRepository>();
             services.AddScoped<IblogService, blogServices>();
             services.AddScoped<IAuthService, AuthService>();
             return services;

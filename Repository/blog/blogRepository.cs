@@ -1,30 +1,46 @@
-
 using Microsoft.EntityFrameworkCore;
 using myblog.models.connections;
 using myblog.models.Private.blog;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace myblog.Repository.blog
 {
-    public class blogRepository : IblogRepository
+    public class BlogRepository : IblogRepository
     {
         private readonly AppDbContext _context;
-        public blogRepository(AppDbContext context)
+
+        public BlogRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<List<blogModel>> GetAllAsync()
+
+        public async Task<(List<blogModel> Items, int TotalItems)> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.blogmodel.ToListAsync();
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var totalItems = await _context.blogmodel.CountAsync();
+            var items = await _context.blogmodel
+                .OrderBy(b => b.createdAt) // Optional: Add sorting for consistency
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalItems);
         }
+
         public async Task<blogModel> GetByIdAsync(Guid id)
         {
             return await _context.blogmodel.FindAsync(id);
         }
+
         public async Task AddAsync(blogModel blog)
         {
             await _context.blogmodel.AddAsync(blog);
             await _context.SaveChangesAsync();
         }
+
         public async Task UpdateAsync(blogModel blog)
         {
             _context.blogmodel.Update(blog);

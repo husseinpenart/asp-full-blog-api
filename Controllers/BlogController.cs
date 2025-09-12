@@ -20,23 +20,25 @@ namespace myblog.Controllers
         }
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _blogService.GetAllAsync();
-            if (!ModelState.IsValid)
-                return BadRequest(new ApiResponseExtension<object>
+            var result = await _blogService.GetAllAsync(pageNumber, pageSize);
+
+            if (!result.Success)
+                return BadRequest(new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
                 {
                     Success = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                     Message = result.Message,
                     Data = null
                 });
-            return Ok(new ApiResponseExtension<object>
+
+            return Ok(new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
             {
                 Success = true,
                 StatusCode = StatusCodes.Status200OK,
                 Message = result.Message,
-                ItemLength = result.Data.Count,
+                ItemLength = result.Data.TotalItems, // Use TotalItems for consistency
                 Data = result.Data
             });
         }

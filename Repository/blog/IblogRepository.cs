@@ -1,15 +1,15 @@
+using myblog.models.Private.blog;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-    using myblog.models.Private.blog;
-
-    namespace myblog.Repository.blog
+namespace myblog.Repository.blog
+{
+    public interface IblogRepository
     {
-        public interface IblogRepository
-        {
-            Task<blogModel> GetByIdAsync(Guid id);
-            Task<List<blogModel>> GetAllAsync();
-            Task AddAsync(blogModel blog);
-            Task UpdateAsync(blogModel blog);
-            Task DeleteAsync(Guid id);
-
-        }
+        Task<(List<blogModel> Items, int TotalItems)> GetAllAsync(int pageNumber, int pageSize);
+        Task<blogModel> GetByIdAsync(Guid id);
+        Task AddAsync(blogModel blog);
+        Task UpdateAsync(blogModel blog);
+        Task DeleteAsync(Guid id);
     }
+}
