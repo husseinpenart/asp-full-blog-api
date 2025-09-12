@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using myblog.extensions;
 using myblog.models.DtoModels;
@@ -21,6 +22,7 @@ namespace myblog.Controllers
 
             _blogService = blogservice;
         }
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -43,7 +45,7 @@ namespace myblog.Controllers
             });
         }
         // create post 
-
+        [Authorize]
         [HttpPost]
         [Consumes("application/json")]
         public async Task<IActionResult> Create([FromBody] blogCrudDto dto)
@@ -73,10 +75,9 @@ namespace myblog.Controllers
                 Data = result.Data
             });
         }
-
         // get by id 
+        [Authorize]
         [HttpGet("{id}")]
-
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _blogService.GetByIdAsync(id);
@@ -98,6 +99,8 @@ namespace myblog.Controllers
             });
         }
         // update by id
+
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBlog(Guid id, [FromBody] blogResponseDto dto)
         {
@@ -121,6 +124,7 @@ namespace myblog.Controllers
         }
 
         // deleting the blog 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBlog(Guid id)
         {
