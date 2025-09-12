@@ -59,19 +59,27 @@ namespace myblog.services.blogs
 
             if (!string.IsNullOrEmpty(dto.cover))
             {
-                var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "blog");
+                var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "blog");
                 if (!Directory.Exists(uploadDir))
                     Directory.CreateDirectory(uploadDir);
 
-                var fileName = $"{Guid.NewGuid()}.jpg"; // or detect extension
+                var fileName = $"{Guid.NewGuid()}.jpg"; // Default to .jpg; adjust if needed
                 var filePath = Path.Combine(uploadDir, fileName);
 
-                // Decode Base64 string
-                var imageBytes = Convert.FromBase64String(dto.cover);
-
-                await File.WriteAllBytesAsync(filePath, imageBytes);
-
-                relativePath = Path.Combine("uploads", "blog", fileName);
+                if (Uri.TryCreate(dto.cover, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+                {
+                    // Download image from URL
+                    using (var httpClient = new HttpClient())
+                    {
+                        var imageBytes = await httpClient.GetByteArrayAsync(uri);
+                        await File.WriteAllBytesAsync(filePath, imageBytes);
+                    }
+                    relativePath = Path.Combine("uploads", "blog", fileName).Replace("\\", "/"); // Normalize path
+                }
+                else
+                {
+                    return (false, "Invalid image URL", null);
+                }
             }
 
             var blog = new blogModel
@@ -82,21 +90,23 @@ namespace myblog.services.blogs
                 writer = dto.writer,
                 category = dto.category,
                 ImagePath = relativePath,
-
+                createdAt = DateTime.UtcNow
             };
+
             await _blogRepository.AddAsync(blog);
+
             var response = new blogResponseDto
             {
-
                 Id = blog.Id,
                 title = blog.title,
                 writer = blog.writer,
                 Description = blog.Description,
                 createdAt = blog.createdAt,
                 category = blog.category,
-                ImagePath = blog.ImagePath,
+                ImagePath = blog.ImagePath
             };
-            return (true, $"blog with title of {blog.title} successfully ", response);
+
+            return (true, $"Blog with title '{blog.title}' created successfully", response);
         }
 
         //update blog

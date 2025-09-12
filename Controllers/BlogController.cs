@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using myblog.extensions;
@@ -57,16 +53,18 @@ namespace myblog.Controllers
                     Message = "Invalid response",
                     StatusCode = StatusCodes.Status400BadRequest,
                     Data = null
-
                 });
+
             var result = await _blogService.CreateAsync(dto);
-            if (!result.Success) return BadRequest(new ApiResponseExtension<object>
-            {
-                Success = false,
-                Message = result.Message,
-                StatusCode = StatusCodes.Status400BadRequest,
-                Data = null
-            });
+            if (!result.Success)
+                return BadRequest(new ApiResponseExtension<object>
+                {
+                    Success = false,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Data = null
+                });
+
             return Ok(new ApiResponseExtension<object>
             {
                 Success = true,

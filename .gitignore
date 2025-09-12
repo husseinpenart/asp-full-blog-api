@@ -40,9 +40,11 @@ ScaffoldingReadMe.txt
 ~$*
 *~
 CodeCoverage/
-
+wwwroot/
 # Entity Framework Core migrations
-[Mm]igrations/
+migrations/
+# ASP.NET Core static files
+wwwroot/
 
 # MSBuild Binary and Structured Log
 *.binlog
