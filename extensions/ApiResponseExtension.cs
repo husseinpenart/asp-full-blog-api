@@ -11,7 +11,7 @@ namespace myblog.extensions
         public string Message { get; set; }
         public int ItemLength { get; set; }
         public int StatusCode { get; set; }
-        public T Data { get; set; }
-        public object Extra { get; set; }
+        public T? Data { get; set; }
+        public object? Extra { get; set; }
     }
 }

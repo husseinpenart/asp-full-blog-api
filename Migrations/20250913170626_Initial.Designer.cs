@@ -12,8 +12,8 @@ using myblog.models.connections;
 namespace myblog.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250913112434_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250913170626_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

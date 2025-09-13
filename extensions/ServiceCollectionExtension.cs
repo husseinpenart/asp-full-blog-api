@@ -1,9 +1,9 @@
 
-using myblog.Repository.auth;
 using myblog.Repository.blog;
+using myblog.Repository.users;
 using myblog.services.auth;
 using myblog.services.blogs;
-using myblog.Services;
+using myblog.services.users;
 
 namespace myblog.extensions
 {

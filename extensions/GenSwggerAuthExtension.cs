@@ -16,7 +16,7 @@ namespace myblog.extensions
                 {
                     Title = "myCalculate API",
                     Version = "v1",
-                    Description = "API برای مدیریت محصولات و کاربران"
+                    Description = "Api for blog posting doc"
                 });
                 // Define the JWT Bearer scheme
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -45,7 +45,7 @@ namespace myblog.extensions
         }
                 });
             });
-            
+
             return services;
 
         }
