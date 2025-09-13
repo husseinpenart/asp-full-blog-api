@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using myblog.models.Private.blog;
 
 namespace myblog.models.Private.users
 {
@@ -18,6 +19,7 @@ namespace myblog.models.Private.users
         [Required(ErrorMessage = "password is required")]
         public string Password { get; set; }
         public string phone { get; set; }
+        public List<blogModel> Blogs { get; set; } = new List<blogModel>();
         public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
     }

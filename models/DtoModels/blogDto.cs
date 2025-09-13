@@ -28,6 +28,7 @@ namespace myblog.models.DtoModels
         public string Description { get; set; }
         public string category { get; set; }
         public string writer { get; set; }
+        public Guid UserId { get; set; }
         public DateTime createdAt { get; set; }
     }
 }

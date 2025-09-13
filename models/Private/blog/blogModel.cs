@@ -1,5 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using myblog.models.Private.users;
 
 namespace myblog.models.Private.blog
 {
@@ -17,6 +19,10 @@ namespace myblog.models.Private.blog
         [Required(ErrorMessage = "Category Required")]
         public string category { get; set; }
         public string writer { get; set; }
+        public Guid UserId { get; set; } // Foreign key to userModel
+
+        [ForeignKey("UserId")]
+        public userModel User { get; set; }
         public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
 
