@@ -13,11 +13,14 @@ namespace myblog.models.connections
         public DbSet<userModel> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Configure one-to-many relationship between userModel and blogModel
             modelBuilder.Entity<blogModel>()
-            .HasOne(a => a.User)
-            .WithMany(a => a.Blogs)
-            .HasForeignKey(a => a.User.Id)
-            .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(b => b.User)
+                .WithMany(u => u.Blogs)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Deletes blogs if user is deleted
+
+            // Ensure Email is unique in userModel
             modelBuilder.Entity<userModel>()
                 .HasIndex(u => u.Email)
                 .IsUnique();

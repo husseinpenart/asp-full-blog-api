@@ -1,4 +1,5 @@
 
+using myblog.Repository.auth;
 using myblog.Repository.blog;
 using myblog.services.auth;
 using myblog.services.blogs;
@@ -12,6 +13,7 @@ namespace myblog.extensions
         {
             services.AddScoped<IblogRepository, BlogRepository>();
             services.AddScoped<IblogService, blogServices>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthService, AuthService>();
             return services;
         }

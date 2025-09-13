@@ -36,10 +36,11 @@ namespace myblog.services.blogs
                 {
                     Id = p.Id,
                     title = p.title,
-                    ImagePath = p.ImagePath, 
+                    ImagePath = p.ImagePath,
                     Description = p.Description,
                     category = p.category,
                     writer = p.writer,
+                    UserId = p.UserId,
                     createdAt = p.createdAt
                 }).ToList();
 
@@ -75,13 +76,14 @@ namespace myblog.services.blogs
                 title = blog.title,
                 writer = blog.writer,
                 Description = blog.Description,
+                UserId = blog.UserId,
                 createdAt = blog.createdAt,
                 category = blog.category,
             };
             return (true, "blog by id found ", respose);
         }
         //create blog
-        public async Task<(bool Success, string Message, blogResponseDto Data)> CreateAsync(blogCrudDto dto)
+        public async Task<(bool Success, string Message, blogResponseDto Data)> CreateAsync(blogCrudDto dto, Guid userId)
         {
             string relativePath = null;
 
@@ -115,9 +117,10 @@ namespace myblog.services.blogs
                 Id = Guid.NewGuid(),
                 title = dto.title,
                 Description = dto.Description,
-                writer = dto.writer,
+                writer = dto.writer ?? "Anonymous",
                 category = dto.category,
                 ImagePath = relativePath,
+                UserId = userId,
                 createdAt = DateTime.UtcNow
             };
 
@@ -131,6 +134,7 @@ namespace myblog.services.blogs
                 Description = blog.Description,
                 createdAt = blog.createdAt,
                 category = blog.category,
+                UserId = blog.UserId,
                 ImagePath = blog.ImagePath
             };
 
@@ -138,36 +142,55 @@ namespace myblog.services.blogs
         }
 
         //update blog
-        public async Task<(bool Success, string Message, blogResponseDto Data)> UpdateAsync(Guid id, blogResponseDto dto)
+        public async Task<(bool Success, string Message, blogResponseDto Data)> UpdateAsync(Guid id, blogCrudDto dto, Guid userId)
         {
-            var blog = await _blogRepository.GetByIdAsync(id);
-            if (blog == null) return (false, "blog not found", null);
-            blog.title = dto.title;
-            blog.Description = dto.Description;
-            blog.writer = dto.writer;
-            blog.category = dto.category;
-
-            await _blogRepository.UpdateAsync(blog);
-            var response = new blogResponseDto
+            try
             {
-                Id = blog.Id,
-                title = blog.title,
-                writer = blog.writer,
-                Description = blog.Description,
-                createdAt = blog.createdAt,
-                category = blog.category,
-            };
-            return (true, $"blog with id of {blog.Id} updated successfully", response);
+                var blog = await _blogRepository.GetByIdAsync(id);
+                if (blog == null)
+                    return (false, "Blog not found", null);
+
+                if (blog.UserId != userId)
+                    return (false, "Unauthorized: You can only edit your own blogs", null);
+
+                blog.title = dto.title;
+                blog.ImagePath = dto.cover;
+                blog.Description = dto.Description;
+                blog.category = dto.category;
+                blog.writer = dto.writer ?? blog.writer;
+
+                await _blogRepository.UpdateAsync(blog);
+
+                var response = new blogResponseDto
+                {
+                    Id = blog.Id,
+                    title = blog.title,
+                    ImagePath = blog.ImagePath,
+                    Description = blog.Description,
+                    category = blog.category,
+                    writer = blog.writer,
+                    UserId = blog.UserId,
+                    createdAt = blog.createdAt
+                };
+
+                return (true, "Blog updated successfully", response);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error updating blog: {ex.Message}", null);
+            }
         }
 
         // delete blog 
-        public async Task<(bool Success, string Message)> DeleteAsync(Guid id)
+        public async Task<(bool Success, string Message)> DeleteAsync(Guid id, Guid userId)
         {
             var blog = await _blogRepository.GetByIdAsync(id);
             if (blog == null)
             {
                 return (false, "blog not found");
             }
+            if (blog.UserId != userId)
+                return (false, "Unauthorized: You can only delete your own blogs");
             await _blogRepository.DeleteAsync(id);
             return (false, "blog deleted Successfully");
         }

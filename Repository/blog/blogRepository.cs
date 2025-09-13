@@ -22,6 +22,7 @@ namespace myblog.Repository.blog
 
             var totalItems = await _context.blogmodel.CountAsync();
             var items = await _context.blogmodel
+                .Include(b => b.User)
                 .OrderBy(b => b.createdAt) // Optional: Add sorting for consistency
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -32,7 +33,9 @@ namespace myblog.Repository.blog
 
         public async Task<blogModel> GetByIdAsync(Guid id)
         {
-            return await _context.blogmodel.FindAsync(id);
+            return await _context.blogmodel
+                .Include(b => b.User) // Include user data
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
 
         public async Task AddAsync(blogModel blog)

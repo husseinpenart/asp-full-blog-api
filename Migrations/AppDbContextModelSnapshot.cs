@@ -36,6 +36,9 @@ namespace myblog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("category")
                         .IsRequired()
                         .HasColumnType("text");
@@ -53,6 +56,8 @@ namespace myblog.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("blogmodel");
                 });
@@ -84,7 +89,26 @@ namespace myblog.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("myblog.models.Private.blog.blogModel", b =>
+                {
+                    b.HasOne("myblog.models.Private.users.userModel", "User")
+                        .WithMany("Blogs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("myblog.models.Private.users.userModel", b =>
+                {
+                    b.Navigation("Blogs");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,7 +8,7 @@ namespace myblog.services.auth
 {
     public interface IAuthService
     {
-        Task<string> RegisterAsync(UserDto userDto);
-        Task<string> LoginAsync(LoginDto loginDto);
+        Task<(bool Success, string Message, UserDto Data)> RegisterAsync(UserDto dto);
+        Task<(bool Success, string Message, string Token)> LoginAsync(LoginDto dto);
     }
 }

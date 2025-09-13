@@ -1,30 +1,31 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using myblog.extensions;
 using myblog.models.DtoModels;
 using myblog.services.blogs;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace myblog.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class BlogController : ControllerBase
     {
         private readonly IblogService _blogService;
 
-        public BlogController(IblogService blogservice)
+        public BlogController(IblogService blogService)
         {
-
-            _blogService = blogservice;
+            _blogService = blogService;
         }
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _blogService.GetAllAsync(pageNumber, pageSize);
-
-            if (!result.Success)
+            if (!result.Success || !ModelState.IsValid)
                 return BadRequest(new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
                 {
                     Success = false,
@@ -38,113 +39,102 @@ namespace myblog.Controllers
                 Success = true,
                 StatusCode = StatusCodes.Status200OK,
                 Message = result.Message,
-                ItemLength = result.Data.TotalItems, // Use TotalItems for consistency
+                ItemLength = result.Data.TotalItems,
                 Data = result.Data
             });
         }
-        // create post 
+
         [Authorize]
         [HttpPost]
-        [Consumes("application/json")]
         public async Task<IActionResult> Create([FromBody] blogCrudDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponseExtension<object>
+                return BadRequest(new ApiResponseExtension<blogResponseDto>
                 {
                     Success = false,
-                    Message = "Invalid response",
                     StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid input",
                     Data = null
                 });
 
-            var result = await _blogService.CreateAsync(dto);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var result = await _blogService.CreateAsync(dto, userId);
+
             if (!result.Success)
-                return BadRequest(new ApiResponseExtension<object>
+                return BadRequest(new ApiResponseExtension<blogResponseDto>
                 {
                     Success = false,
-                    Message = result.Message,
                     StatusCode = StatusCodes.Status400BadRequest,
+                    Message = result.Message,
                     Data = null
                 });
 
-            return Ok(new ApiResponseExtension<object>
+            return Ok(new ApiResponseExtension<blogResponseDto>
             {
                 Success = true,
-                Message = result.Message,
                 StatusCode = StatusCodes.Status200OK,
-                Data = result.Data
-            });
-        }
-        // get by id 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var result = await _blogService.GetByIdAsync(id);
-            if (!result.Success && result.Data == null)
-                return BadRequest(new ApiResponseExtension<object>
-                {
-                    Success = false,
-                    Message = result.Message,
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Data = null
-
-                });
-            return Ok(new ApiResponseExtension<object>
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Success = true,
                 Message = result.Message,
                 Data = result.Data
             });
         }
-        // update by id
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBlog(Guid id, [FromBody] blogResponseDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] blogCrudDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ApiResponseExtension<object>
+                return BadRequest(new ApiResponseExtension<blogResponseDto>
                 {
                     Success = false,
-                    Message = "Respose Error",
                     StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid input",
                     Data = null
                 });
-            var result = await _blogService.UpdateAsync(id, dto);
-            return Ok(new ApiResponseExtension<object>
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var result = await _blogService.UpdateAsync(id, dto, userId);
+
+            if (!result.Success)
+                return BadRequest(new ApiResponseExtension<blogResponseDto>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = result.Message,
+                    Data = null
+                });
+
+            return Ok(new ApiResponseExtension<blogResponseDto>
             {
                 Success = true,
-                Message = result.Message,
                 StatusCode = StatusCodes.Status200OK,
+                Message = result.Message,
                 Data = result.Data
             });
-
         }
 
-        // deleting the blog 
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBlog(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _blogService.DeleteAsync(id);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var result = await _blogService.DeleteAsync(id, userId);
+
             if (!result.Success)
                 return BadRequest(new ApiResponseExtension<object>
                 {
                     Success = false,
-                    Message = result.Message,
                     StatusCode = StatusCodes.Status400BadRequest,
+                    Message = result.Message,
                     Data = null
                 });
+
             return Ok(new ApiResponseExtension<object>
             {
                 Success = true,
-                Message = result.Message,
                 StatusCode = StatusCodes.Status200OK,
+                Message = result.Message,
                 Data = null
             });
         }
-
     }
 }

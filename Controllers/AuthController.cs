@@ -2,54 +2,81 @@ using Microsoft.AspNetCore.Mvc;
 using myblog.extensions;
 using myblog.models.DtoModels;
 using myblog.services.auth;
-using myblog.Services;
 using System.Threading.Tasks;
 
 namespace myblog.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IAuthService _userService;
 
-        public AuthController(IAuthService authService)
+        public UserController(IAuthService userService)
         {
-            _authService = authService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserDto userDto)
+        public async Task<IActionResult> Register([FromBody] UserDto dto)
         {
-            try
-            {
-                var token = await _authService.RegisterAsync(userDto);
-                return Ok(new ApiResponseExtension<object>
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponseExtension<UserDto>
                 {
-                    Success = true,
-                    
-                    StatusCode = StatusCodes.Status200OK,
-                    Data = token
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid input",
+                    Data = null
                 });
-            }
-            catch (Exception ex)
+
+            var result = await _userService.RegisterAsync(dto);
+            if (!result.Success)
+                return BadRequest(new ApiResponseExtension<UserDto>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = result.Message,
+                    Data = null
+                });
+
+            return Ok(new ApiResponseExtension<UserDto>
             {
-                return BadRequest(new { Error = ex.Message });
-            }
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = result.Message,
+                Data = result.Data
+            });
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            try
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiResponseExtension<string>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid input",
+                    Data = null
+                });
+
+            var result = await _userService.LoginAsync(dto);
+            if (!result.Success)
+                return BadRequest(new ApiResponseExtension<string>
+                {
+                    Success = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = result.Message,
+                    Data = null
+                });
+
+            return Ok(new ApiResponseExtension<string>
             {
-                var token = await _authService.LoginAsync(loginDto);
-                return Ok(new { Token = token });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+                Message = result.Message,
+                Data = result.Token
+            });
         }
     }
 }

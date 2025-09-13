@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using myblog.models.connections;
 using myblog.models.DtoModels;
 using myblog.models.Private.users;
+using myblog.Repository.auth;
 using myblog.services.auth;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,74 +16,87 @@ namespace myblog.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly AppDbContext _context;
+
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(AppDbContext context, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {
-            _context = context;
-            _configuration = configuration;
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task<string> RegisterAsync(UserDto userDto)
+        public async Task<(bool Success, string Message, UserDto Data)> RegisterAsync(UserDto dto)
         {
-            // Check if email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == userDto.Email))
-                throw new Exception("Email already exists");
-
-            // Hash password
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
-
-            // Create user
-            var user = new userModel
+            try
             {
-                Name = userDto.Name,
-                Email = userDto.Email,
-                Password = hashedPassword,
-                phone = userDto.Phone,
-                createdAt = DateTime.UtcNow
-            };
-            
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            
-            // Generate JWT
-            return GenerateJwtToken(user);
-        }
+                // Check if email already exists
+                var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
+                if (existingUser != null)
+                    return (false, "Email already registered", null);
 
-        public async Task<string> LoginAsync(LoginDto loginDto)
-        {
-            // Find user by email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
-                throw new Exception("Invalid email or password");
-
-            // Generate JWT
-            return GenerateJwtToken(user);
-        }
-
-        private string GenerateJwtToken(userModel user)
-        {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+                var user = new userModel
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.Name)
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+                    Id = Guid.NewGuid(),
+                    Name = dto.Name,
+                    Email = dto.Email,
+                    Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    phone = dto.Phone,
+                    createdAt = DateTime.UtcNow
+                    // Blogs is initialized as empty list by default
+                };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+                await _userRepository.AddAsync(user);
+
+                var response = new UserDto
+                {
+                    Name = user.Name,
+                    Email = user.Email,
+                    Phone = user.phone,
+                    Password = user.Password,
+                };
+
+                return (true, "User registered successfully", response);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error registering user: {ex.Message}", null);
+            }
+        }
+
+        public async Task<(bool Success, string Message, string Token)> LoginAsync(LoginDto dto)
+        {
+            try
+            {
+                var user = await _userRepository.GetByEmailAsync(dto.Email);
+                if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+                    return (false, "Invalid email or password", null);
+
+                // Generate JWT token
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.Name),
+                        new Claim(ClaimTypes.Email, user.Email)
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return (true, "Login successful", tokenString);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error logging in: {ex.Message}", null);
+            }
         }
     }
 }

@@ -15,8 +15,6 @@ namespace myblog.models.DtoModels
         [Required(ErrorMessage = "Password is required")]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
         public string Password { get; set; }
-        // Optional: Include if you want to return blogs in user responses
-        public List<blogResponseDto> Blogs { get; set; }
         public string Phone { get; set; }
     }
 
