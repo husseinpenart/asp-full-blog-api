@@ -36,7 +36,7 @@ namespace myblog.Repository.blog
             return await _context.blogmodel
                 .Include(b => b.User) // Include user data
                 .FirstOrDefaultAsync(b => b.Id == id);
-        }
+        }   
 
         public async Task AddAsync(blogModel blog)
         {

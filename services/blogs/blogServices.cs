@@ -35,11 +35,12 @@ namespace myblog.services.blogs
                 var paginatedBlogs = blogs.Select(p => new blogResponseDto
                 {
                     Id = p.Id,
+                    slug = p.slug,
                     title = p.title,
                     ImagePath = p.ImagePath,
                     Description = p.Description,
                     category = p.category,
-                    writer = p.writer,
+                    writer = p.User.Name,
                     UserId = p.UserId,
                     createdAt = p.createdAt
                 }).ToList();
@@ -73,6 +74,7 @@ namespace myblog.services.blogs
             var respose = new blogResponseDto
             {
                 Id = blog.Id,
+                slug = blog.slug,
                 title = blog.title,
                 writer = blog.writer,
                 Description = blog.Description,
@@ -115,6 +117,7 @@ namespace myblog.services.blogs
             var blog = new blogModel
             {
                 Id = Guid.NewGuid(),
+                slug = dto.slug,
                 title = dto.title,
                 Description = dto.Description,
                 writer = dto.writer ?? "Anonymous",
@@ -129,6 +132,7 @@ namespace myblog.services.blogs
             var response = new blogResponseDto
             {
                 Id = blog.Id,
+                slug = blog.slug,
                 title = blog.title,
                 writer = blog.writer,
                 Description = blog.Description,

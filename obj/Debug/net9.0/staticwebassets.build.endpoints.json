@@ -165,6 +165,88 @@
           "Value": "Uploads/blog/6b88cd4e-c35d-4102-bced-fb7f32a7ce6b.jpg"
         }
       ]
+    },
+    {
+      "Route": "Uploads/blog/ddefa14c-0a11-433b-ab0b-cf995b34cbfe.jpg",
+      "AssetFile": "Uploads/blog/ddefa14c-0a11-433b-ab0b-cf995b34cbfe.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "52413"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"56D/5urOY4JxuEJUssB+hUMewvuhGlWneJ8HE1uCPXk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 18 Sep 2025 13:40:32 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-56D/5urOY4JxuEJUssB+hUMewvuhGlWneJ8HE1uCPXk="
+        }
+      ]
+    },
+    {
+      "Route": "Uploads/blog/ddefa14c-0a11-433b-ab0b-cf995b34cbfe.ns6q4qlqvt.jpg",
+      "AssetFile": "Uploads/blog/ddefa14c-0a11-433b-ab0b-cf995b34cbfe.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "52413"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"56D/5urOY4JxuEJUssB+hUMewvuhGlWneJ8HE1uCPXk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 18 Sep 2025 13:40:32 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ns6q4qlqvt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-56D/5urOY4JxuEJUssB+hUMewvuhGlWneJ8HE1uCPXk="
+        },
+        {
+          "Name": "label",
+          "Value": "Uploads/blog/ddefa14c-0a11-433b-ab0b-cf995b34cbfe.jpg"
+        }
+      ]
     }
   ]
 }

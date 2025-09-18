@@ -6,6 +6,7 @@ namespace myblog.models.DtoModels
 {
     public class blogCrudDto
     {
+        public string slug { get; set; }
         [Required(ErrorMessage = "title required")]
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
@@ -22,7 +23,7 @@ namespace myblog.models.DtoModels
     public class blogResponseDto
     {
         public Guid Id { get; set; }
-
+        public string slug { get; set; }
         public string title { get; set; }
         public string ImagePath { get; set; }
         public string Description { get; set; }

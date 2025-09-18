@@ -9,6 +9,7 @@ namespace myblog.models.Private.blog
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+        public string slug { get; set; }
         [Required(ErrorMessage = "title required")]
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
