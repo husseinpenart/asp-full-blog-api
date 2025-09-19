@@ -43,7 +43,15 @@ namespace myblog.Controllers
                 Data = result.Data
             });
         }
-
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(Guid id)
+        {
+            var result = await _blogService.GetByIdAsync(id);
+            if (result.Data == null)
+                return NotFound();
+            return Ok(result.Data);
+        }
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] blogCrudDto dto)
