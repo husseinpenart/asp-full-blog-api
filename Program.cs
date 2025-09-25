@@ -15,7 +15,6 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGenWithJwt();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddBlogServices();// add servicess from extensions
-// ثبت DbContext برای PostgreSQL
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -42,10 +41,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8080);// bind for docker containers 
+});
 
 var app = builder.Build();
-//ip changes or domain for publish 
-app.Urls.Add("http://10.216.97.145:5203");
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
