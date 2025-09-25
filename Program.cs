@@ -44,6 +44,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+//ip changes or domain for publish 
+app.Urls.Add("http://10.216.97.145:5203");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

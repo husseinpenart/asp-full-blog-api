@@ -173,3 +173,8 @@
 /home/hussein/myblog/obj/Debug/net9.0/myblog.pdb
 /home/hussein/myblog/obj/Debug/net9.0/myblog.genruntimeconfig.cache
 /home/hussein/myblog/obj/Debug/net9.0/ref/myblog.dll
+/home/hussein/myblog/bin/Debug/net9.0/publish/appsettings.Development.json
+/home/hussein/myblog/bin/Debug/net9.0/publish/appsettings.json
+/home/hussein/myblog/bin/Debug/net9.0/publish/myblog.deps.json
+/home/hussein/myblog/bin/Debug/net9.0/publish/myblog.runtimeconfig.json
+/home/hussein/myblog/bin/Debug/net9.0/publish/myblog.staticwebassets.endpoints.json
