@@ -1,25 +1,29 @@
-
-
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace myblog.models.DtoModels
 {
     public class blogCrudDto
     {
         public string slug { get; set; }
+
         [Required(ErrorMessage = "title required")]
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
+
+        // <CHANGE> Changed from string to IFormFile to accept file uploads
         [Required(ErrorMessage = "Cover is Required")]
-        public string cover { get; set; }
-        [Required(ErrorMessage = "Description Requiered")]
+        public IFormFile cover { get; set; }
+
+        [Required(ErrorMessage = "Description Required")]
         public string Description { get; set; }
+
         [Required(ErrorMessage = "Category Required")]
         public string category { get; set; }
+
         public string writer { get; set; }
-
-
     }
+
     public class blogResponseDto
     {
         public Guid Id { get; set; }

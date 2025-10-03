@@ -1,24 +1,36 @@
-version: '3.9'
-
 services:
+  migrator:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    working_dir: /src
+    volumes:
+      - ./:/src
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c " dotnet tool install --global dotnet-ef --version 9.0.0 && export PATH=\"$PATH:/root/.dotnet/tools\" && dotnet ef database update --project /src/myblog.csproj --connection \"Host=db;Username=husseinpenart;Password=13741995hussein;Database=myblog\" "
+    networks:
+      - app-network
+
   myblog:
     image: myblog:latest
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-       - "5433:5432"
-       # میزبان:کانتینر
+      - "5203:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_RUNNING_IN_CONTAINER=true
+      - ConnectionStrings__defaultConnection=Host=db;Username=husseinpenart;Password=13741995hussein;Database=myblog
     volumes:
       - ./DataProtection-Keys:/root/.aspnet/DataProtection-Keys
     depends_on:
-      - db
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  # اگر نیاز به دسترسی به دیتابیس میزبان داری
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
   db:
     image: postgres:15
@@ -28,6 +40,17 @@ services:
       POSTGRES_PASSWORD: 13741995hussein
       POSTGRES_DB: myblog
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U husseinpenart -d myblog" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

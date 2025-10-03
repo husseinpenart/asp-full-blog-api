@@ -2755,6 +2755,8 @@
         "lib/net472/de/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
         "lib/net472/es/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
         "lib/net472/fr/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
+        "lib/net472/gMicrosoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe",
+        "lib/net472/gMicrosoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.ico",
         "lib/net472/it/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
         "lib/net472/ja/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
         "lib/net472/ko/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll",
@@ -2997,8 +2999,14 @@
         "tools/net10.0/any/ef.dll",
         "tools/net10.0/any/ef.runtimeconfig.json",
         "tools/net472/any/ef.exe",
+        "tools/net472/any/gef.exe",
+        "tools/net472/any/gef.ico",
         "tools/net472/win-arm64/ef.exe",
-        "tools/net472/win-x86/ef.exe"
+        "tools/net472/win-arm64/gef.exe",
+        "tools/net472/win-arm64/gef.ico",
+        "tools/net472/win-x86/ef.exe",
+        "tools/net472/win-x86/gef.exe",
+        "tools/net472/win-x86/gef.ico"
       ]
     },
     "Microsoft.Extensions.Caching.Abstractions/9.0.9": {
@@ -4768,24 +4776,32 @@
     ]
   },
   "packageFolders": {
-    "/home/hussein/.nuget/packages/": {}
+    "C:\\Users\\Husseinpenart\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/hussein/myblog/myblog.csproj",
+      "projectUniqueName": "C:\\Users\\Husseinpenart\\Desktop\\asp-full-blog-api\\myblog.csproj",
       "projectName": "myblog",
-      "projectPath": "/home/hussein/myblog/myblog.csproj",
-      "packagesPath": "/home/hussein/.nuget/packages/",
-      "outputPath": "/home/hussein/myblog/obj/",
+      "projectPath": "C:\\Users\\Husseinpenart\\Desktop\\asp-full-blog-api\\myblog.csproj",
+      "packagesPath": "C:\\Users\\Husseinpenart\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Husseinpenart\\Desktop\\asp-full-blog-api\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/hussein/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Husseinpenart\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4804,7 +4820,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -4896,7 +4912,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
