@@ -29,15 +29,15 @@ namespace myblog.Repository.users
 
         public async Task<userModel> GetByEmailAsync(string email)
         {
-            return await _context.Users
-                .Include(u => u.Blogs) // Include blogs for profile if needed
+            return await _context
+                .Users.Include(u => u.Blogs) // Include blogs for profile if needed
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<userModel> GetByIdAsync(Guid id)
         {
-            return await _context.Users
-                .Include(u => u.Blogs) // Include blogs for profile if needed
+            return await _context
+                .Users.Include(u => u.Blogs) // Include blogs for profile if needed
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 

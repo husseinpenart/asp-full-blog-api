@@ -17,6 +17,7 @@ namespace myblog.models.DtoModels
         public string Password { get; set; }
         public string Phone { get; set; }
     }
+
     // Used for updating profile (partial updates)
     public class UpdateUserDto
     {
@@ -42,6 +43,7 @@ namespace myblog.models.DtoModels
         public DateTime CreatedAt { get; set; }
         public List<blogResponseDto> Blogs { get; set; } // Optional: Include user's blogs
     }
+
     public class LoginDto
     {
         [Required(ErrorMessage = "Email is required")]

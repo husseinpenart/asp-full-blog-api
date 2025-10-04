@@ -17,12 +17,56 @@ namespace myblog.Controllers
 
         public BlogController(IblogService blogService)
         {
-            _blogService = blogService;
+            _blogService = blogService ?? throw new ArgumentNullException(nameof(blogService));
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+        )
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized(
+                    new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated",
+                        Data = null,
+                    }
+                );
+            }
+
+            var result = await _blogService.GetAllAsync(pageNumber, pageSize, userId);
+            if (!result.Success || !ModelState.IsValid)
+                return BadRequest(
+                    new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = result.Message,
+                        Data = null,
+                    }
+                );
+
+            return Ok(
+                new ApiResponseExtension<PaginatedResponseDto<blogResponseDto>>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    ItemLength = result.Data?.TotalItems ?? 0,
+                    Data = result.Data,
+                }
+            );
+        }
+
+        [HttpGet("public")]
+        public async Task<IActionResult> GetAllPublic(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10
         )
@@ -45,7 +89,7 @@ namespace myblog.Controllers
                     Success = true,
                     StatusCode = StatusCodes.Status200OK,
                     Message = result.Message,
-                    ItemLength = result.Data.TotalItems,
+                    ItemLength = result.Data?.TotalItems ?? 0,
                     Data = result.Data,
                 }
             );
@@ -56,9 +100,26 @@ namespace myblog.Controllers
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
             var result = await _blogService.GetByIdAsync(id);
-            if (result.Data == null)
-                return NotFound();
-            return Ok(result.Data);
+            if (!result.Success || result.Data == null)
+                return NotFound(
+                    new ApiResponseExtension<blogResponseDto>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = result.Message,
+                        Data = null,
+                    }
+                );
+
+            return Ok(
+                new ApiResponseExtension<blogResponseDto>
+                {
+                    Success = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = result.Data,
+                }
+            );
         }
 
         [Authorize]
@@ -76,9 +137,21 @@ namespace myblog.Controllers
                     }
                 );
 
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var result = await _blogService.CreateAsync(dto, userId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized(
+                    new ApiResponseExtension<blogResponseDto>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated",
+                        Data = null,
+                    }
+                );
+            }
 
+            var result = await _blogService.CreateAsync(dto, userId);
             if (!result.Success)
                 return BadRequest(
                     new ApiResponseExtension<blogResponseDto>
@@ -116,9 +189,21 @@ namespace myblog.Controllers
                     }
                 );
 
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var result = await _blogService.UpdateAsync(id, dto, userId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized(
+                    new ApiResponseExtension<blogResponseDto>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated",
+                        Data = null,
+                    }
+                );
+            }
 
+            var result = await _blogService.UpdateAsync(id, dto, userId);
             if (!result.Success)
                 return BadRequest(
                     new ApiResponseExtension<blogResponseDto>
@@ -145,9 +230,21 @@ namespace myblog.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var result = await _blogService.DeleteAsync(id, userId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized(
+                    new ApiResponseExtension<object>
+                    {
+                        Success = false,
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated",
+                        Data = null,
+                    }
+                );
+            }
 
+            var result = await _blogService.DeleteAsync(id, userId);
             if (!result.Success)
                 return BadRequest(
                     new ApiResponseExtension<object>

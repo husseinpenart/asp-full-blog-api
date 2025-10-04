@@ -3,13 +3,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using myblog.models.connections;
 using myblog.models.DtoModels;
 using myblog.models.Private.users;
 using myblog.Repository.users;
-using BCrypt.Net;
 using myblog.services.auth;
 
 namespace myblog.services.users
@@ -20,11 +20,17 @@ namespace myblog.services.users
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IUserRepository userRepository, AppDbContext context, IConfiguration configuration)
+        public AuthService(
+            IUserRepository userRepository,
+            AppDbContext context,
+            IConfiguration configuration
+        )
         {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _userRepository =
+                userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _configuration =
+                configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         // RegisterAsync and LoginAsync remain unchanged
@@ -43,7 +49,7 @@ namespace myblog.services.users
                     Email = dto.Email,
                     Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     phone = dto.Phone,
-                    createdAt = DateTime.UtcNow
+                    createdAt = DateTime.UtcNow,
                 };
 
                 await _userRepository.AddAsync(user);
@@ -52,7 +58,7 @@ namespace myblog.services.users
                 {
                     Name = user.Name,
                     Email = user.Email,
-                    Phone = user.phone
+                    Phone = user.phone,
                 };
 
                 return (true, "User registered successfully", response);
@@ -75,16 +81,21 @@ namespace myblog.services.users
                 var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Email, user.Email)
-                    }),
+                    Subject = new ClaimsIdentity(
+                        new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name, user.Name),
+                            new Claim(ClaimTypes.Email, user.Email),
+                        }
+                    ),
                     Expires = DateTime.UtcNow.AddHours(1),
                     Issuer = _configuration["Jwt:Issuer"],
                     Audience = _configuration["Jwt:Audience"],
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(key),
+                        SecurityAlgorithms.HmacSha256Signature
+                    ),
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
@@ -97,7 +108,9 @@ namespace myblog.services.users
             }
         }
 
-        public async Task<(bool Success, string Message, UserProfileDto Data)> GetProfileAsync(Guid userId)
+        public async Task<(bool Success, string Message, UserProfileDto Data)> GetProfileAsync(
+            Guid userId
+        )
         {
             try
             {
@@ -112,17 +125,19 @@ namespace myblog.services.users
                     Email = user.Email,
                     Phone = user.phone,
                     CreatedAt = user.createdAt,
-                    Blogs = user.Blogs?.Select(b => new blogResponseDto
-                    {
-                        Id = b.Id,
-                        title = b.title,
-                        ImagePath = b.ImagePath,
-                        Description = b.Description,
-                        category = b.category,
-                        writer = b.writer,
-                        UserId = b.UserId,
-                        createdAt = b.createdAt
-                    }).ToList() ?? new List<blogResponseDto>()
+                    Blogs =
+                        user.Blogs?.Select(b => new blogResponseDto
+                            {
+                                Id = b.Id,
+                                title = b.title,
+                                ImagePath = b.ImagePath,
+                                Description = b.Description,
+                                category = b.category,
+                                writer = b.writer,
+                                UserId = b.UserId,
+                                createdAt = b.createdAt,
+                            })
+                            .ToList() ?? new List<blogResponseDto>(),
                 };
 
                 return (true, "Profile retrieved successfully", response);
@@ -133,7 +148,10 @@ namespace myblog.services.users
             }
         }
 
-        public async Task<(bool Success, string Message, UserProfileDto Data)> UpdateProfileAsync(Guid userId, UpdateUserDto dto)
+        public async Task<(bool Success, string Message, UserProfileDto Data)> UpdateProfileAsync(
+            Guid userId,
+            UpdateUserDto dto
+        )
         {
             try
             {
@@ -156,7 +174,9 @@ namespace myblog.services.users
                         return (false, "Invalid email format", null);
 
                     // Check for email uniqueness
-                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Id != userId);
+                    var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
+                        u.Email == dto.Email && u.Id != userId
+                    );
                     if (existingUser != null)
                         return (false, "Email already registered", null);
 
@@ -191,17 +211,19 @@ namespace myblog.services.users
                     Email = user.Email,
                     Phone = user.phone,
                     CreatedAt = user.createdAt,
-                    Blogs = user.Blogs?.Select(b => new blogResponseDto
-                    {
-                        Id = b.Id,
-                        title = b.title,
-                        ImagePath = b.ImagePath,
-                        Description = b.Description,
-                        category = b.category,
-                        writer = b.writer,
-                        UserId = b.UserId,
-                        createdAt = b.createdAt
-                    }).ToList() ?? new List<blogResponseDto>()
+                    Blogs =
+                        user.Blogs?.Select(b => new blogResponseDto
+                            {
+                                Id = b.Id,
+                                title = b.title,
+                                ImagePath = b.ImagePath,
+                                Description = b.Description,
+                                category = b.category,
+                                writer = b.writer,
+                                UserId = b.UserId,
+                                createdAt = b.createdAt,
+                            })
+                            .ToList() ?? new List<blogResponseDto>(),
                 };
 
                 return (true, "Profile updated successfully", response);

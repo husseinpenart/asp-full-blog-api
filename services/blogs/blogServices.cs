@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -11,35 +12,35 @@ namespace myblog.services.blogs
 {
     public class blogServices : IblogService
     {
-        // call repository for extra function and connection rep
         private readonly IblogRepository _blogRepository;
 
         public blogServices(IblogRepository blogRepository)
         {
-            _blogRepository = blogRepository;
+            _blogRepository =
+                blogRepository ?? throw new ArgumentNullException(nameof(blogRepository));
         }
 
-        // get all blogs
         public async Task<(
             bool Success,
             string Message,
-            PaginatedResponseDto<blogResponseDto> Data
-        )> GetAllAsync(int pageNumber, int pageSize)
+            PaginatedResponseDto<blogResponseDto>? Data
+        )> GetAllAsync(int pageNumber, int pageSize, Guid? userId = null)
         {
             try
             {
-                // Validate pagination parameters
                 if (pageNumber < 1)
                     pageNumber = 1;
                 if (pageSize < 1)
                     pageSize = 10;
                 if (pageSize > 100)
-                    pageSize = 100; // Optional: Limit max page size
+                    pageSize = 100;
 
-                // Get paginated blogs and total count from repository
-                var (blogs, totalItems) = await _blogRepository.GetAllAsync(pageNumber, pageSize);
+                var (blogs, totalItems) = await _blogRepository.GetAllAsync(
+                    pageNumber,
+                    pageSize,
+                    userId
+                );
 
-                // Map to DTO
                 var paginatedBlogs = blogs
                     .Select(p => new blogResponseDto
                     {
@@ -49,13 +50,12 @@ namespace myblog.services.blogs
                         ImagePath = p.ImagePath,
                         Description = p.Description,
                         category = p.category,
-                        writer = p.User.Name,
+                        writer = p.User?.Name ?? p.writer ?? "Anonymous",
                         UserId = p.UserId,
                         createdAt = p.createdAt,
                     })
                     .ToList();
 
-                // Create paginated response
                 var response = new PaginatedResponseDto<blogResponseDto>
                 {
                     Data = paginatedBlogs,
@@ -69,48 +69,47 @@ namespace myblog.services.blogs
             }
             catch (Exception ex)
             {
-                // Handle exceptions and ensure a return value
                 return (false, $"Error retrieving blogs: {ex.Message}", null);
             }
         }
 
-        // get by id
-        public async Task<(bool Success, string Message, blogResponseDto Data)> GetByIdAsync(
+        public async Task<(bool Success, string Message, blogResponseDto? Data)> GetByIdAsync(
             Guid id
         )
         {
             var blog = await _blogRepository.GetByIdAsync(id);
             if (blog == null)
             {
-                return (false, "blog not found", null);
+                return (false, "Blog not found", null);
             }
-            var respose = new blogResponseDto
+
+            var response = new blogResponseDto
             {
                 Id = blog.Id,
                 slug = blog.slug,
                 title = blog.title,
-                writer = blog.writer,
+                writer = blog.User?.Name ?? blog.writer ?? "Anonymous",
                 ImagePath = blog.ImagePath,
                 Description = blog.Description,
                 UserId = blog.UserId,
                 createdAt = blog.createdAt,
                 category = blog.category,
             };
-            return (true, "blog by id found ", respose);
+
+            return (true, "Blog by id found", response);
         }
 
-        //create blog
-        public async Task<(bool Success, string Message, blogResponseDto Data)> CreateAsync(
+        public async Task<(bool Success, string Message, blogResponseDto? Data)> CreateAsync(
             blogCrudDto dto,
             Guid userId
         )
         {
-            if (dto.cover == null || dto.cover.Length == 0)
+            if (dto == null || dto.cover == null || dto.cover.Length == 0)
                 return (false, "Cover image is required for creating a blog", null);
 
-            string relativePath = null;
+            string? relativePath = null;
 
-            if (dto.cover != null && dto.cover.Length > 0)
+            try
             {
                 var uploadDir = Path.Combine(
                     Directory.GetCurrentDirectory(),
@@ -132,6 +131,10 @@ namespace myblog.services.blogs
                 }
 
                 relativePath = Path.Combine("uploads", "blog", fileName).Replace("\\", "/");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error uploading cover image: {ex.Message}", null);
             }
 
             var blog = new blogModel
@@ -165,8 +168,7 @@ namespace myblog.services.blogs
             return (true, $"Blog with title '{blog.title}' created successfully", response);
         }
 
-        //update blog
-        public async Task<(bool Success, string Message, blogResponseDto Data)> UpdateAsync(
+        public async Task<(bool Success, string Message, blogResponseDto? Data)> UpdateAsync(
             Guid id,
             blogCrudDto dto,
             Guid userId
@@ -187,7 +189,6 @@ namespace myblog.services.blogs
                 blog.category = dto.category;
                 blog.writer = dto.writer ?? blog.writer;
 
-                // Handle file upload if provided
                 if (dto.cover != null && dto.cover.Length > 0)
                 {
                     var uploadDir = Path.Combine(
@@ -211,7 +212,6 @@ namespace myblog.services.blogs
 
                     blog.ImagePath = Path.Combine("uploads", "blog", fileName).Replace("\\", "/");
                 }
-                // If no cover is provided, keep the existing ImagePath (no change needed)
 
                 await _blogRepository.UpdateAsync(blog);
 
@@ -236,18 +236,18 @@ namespace myblog.services.blogs
             }
         }
 
-        // delete blog
         public async Task<(bool Success, string Message)> DeleteAsync(Guid id, Guid userId)
         {
             var blog = await _blogRepository.GetByIdAsync(id);
             if (blog == null)
             {
-                return (false, "blog not found");
+                return (false, "Blog not found");
             }
             if (blog.UserId != userId)
                 return (false, "Unauthorized: You can only delete your own blogs");
+
             await _blogRepository.DeleteAsync(id);
-            return (false, "blog deleted Successfully");
+            return (true, "Blog deleted successfully");
         }
     }
 }
