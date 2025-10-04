@@ -38,9 +38,32 @@ namespace myblog.services.users
         {
             try
             {
+                // Explicitly validate DTO to ensure Password is not null or empty
+                if (
+                    dto == null
+                    || string.IsNullOrWhiteSpace(dto.Name)
+                    || string.IsNullOrWhiteSpace(dto.Email)
+                    || string.IsNullOrWhiteSpace(dto.Password)
+                )
+                {
+                    return (false, "Name, email, and password are required", null);
+                }
+
+                if (dto.Password.Length < 8)
+                {
+                    return (false, "Password must be at least 8 characters", null);
+                }
+
+                if (!IsValidEmail(dto.Email))
+                {
+                    return (false, "Invalid email format", null);
+                }
+
                 var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
                 if (existingUser != null)
+                {
                     return (false, "Email already registered", null);
+                }
 
                 var user = new userModel
                 {
@@ -159,7 +182,6 @@ namespace myblog.services.users
                 if (user == null)
                     return (false, "User not found", null);
 
-                // Update only provided fields if they have non-whitespace values
                 bool isUpdated = false;
 
                 if (!string.IsNullOrWhiteSpace(dto.Name))
@@ -173,7 +195,6 @@ namespace myblog.services.users
                     if (!IsValidEmail(dto.Email))
                         return (false, "Invalid email format", null);
 
-                    // Check for email uniqueness
                     var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
                         u.Email == dto.Email && u.Id != userId
                     );
@@ -198,7 +219,6 @@ namespace myblog.services.users
                     isUpdated = true;
                 }
 
-                // Only save changes if at least one field was updated
                 if (!isUpdated)
                     return (false, "No changes provided", null);
 

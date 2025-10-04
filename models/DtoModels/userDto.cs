@@ -29,8 +29,7 @@ namespace myblog.models.DtoModels
 
         public string Phone { get; set; }
 
-        // Optional: Allow password change
-        public string Password { get; set; }
+        public string? Password { get; set; }
     }
 
     // Used for profile response, including blogs if needed
