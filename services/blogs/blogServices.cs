@@ -90,6 +90,7 @@ namespace myblog.services.blogs
                 slug = blog.slug,
                 title = blog.title,
                 writer = blog.writer,
+                ImagePath = blog.ImagePath,
                 Description = blog.Description,
                 UserId = blog.UserId,
                 createdAt = blog.createdAt,
@@ -104,6 +105,9 @@ namespace myblog.services.blogs
             Guid userId
         )
         {
+            if (dto.cover == null || dto.cover.Length == 0)
+                return (false, "Cover image is required for creating a blog", null);
+
             string relativePath = null;
 
             if (dto.cover != null && dto.cover.Length > 0)
@@ -118,12 +122,10 @@ namespace myblog.services.blogs
                 if (!Directory.Exists(uploadDir))
                     Directory.CreateDirectory(uploadDir);
 
-                // Get file extension from uploaded file
                 var fileExtension = Path.GetExtension(dto.cover.FileName);
                 var fileName = $"{Guid.NewGuid()}{fileExtension}";
                 var filePath = Path.Combine(uploadDir, fileName);
 
-                // Save the uploaded file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await dto.cover.CopyToAsync(stream);
@@ -180,6 +182,7 @@ namespace myblog.services.blogs
                     return (false, "Unauthorized: You can only edit your own blogs", null);
 
                 blog.title = dto.title;
+                blog.slug = dto.slug;
                 blog.Description = dto.Description;
                 blog.category = dto.category;
                 blog.writer = dto.writer ?? blog.writer;
@@ -208,6 +211,7 @@ namespace myblog.services.blogs
 
                     blog.ImagePath = Path.Combine("uploads", "blog", fileName).Replace("\\", "/");
                 }
+                // If no cover is provided, keep the existing ImagePath (no change needed)
 
                 await _blogRepository.UpdateAsync(blog);
 

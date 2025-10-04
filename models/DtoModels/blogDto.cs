@@ -11,9 +11,7 @@ namespace myblog.models.DtoModels
         [StringLength(100, ErrorMessage = "for better seo more than 100 char is no good")]
         public string title { get; set; }
 
-        // <CHANGE> Changed from string to IFormFile to accept file uploads
-        [Required(ErrorMessage = "Cover is Required")]
-        public IFormFile cover { get; set; }
+        public IFormFile? cover { get; set; }
 
         [Required(ErrorMessage = "Description Required")]
         public string Description { get; set; }
